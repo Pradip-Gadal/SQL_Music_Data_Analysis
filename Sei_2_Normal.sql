@@ -31,6 +31,8 @@ join track as t_ on al_.album_id = t_.album_id
 where genre_id in(select genre_id from genre where name like 'Rock')
 group by 1
 order by 2 desc
+limit 10
 
+-- Q3: 
 
 
