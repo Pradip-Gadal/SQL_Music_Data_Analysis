@@ -1,45 +1,44 @@
--- SET 1 : EASY
--- Q1: Who is the senior most employee based on job title?
+-- SET-2: Normal_Quary
 
-select CONCAT(RTRIM(first_name),' ',LTRIM(last_name)) full_name from employee
-order by levels desc
-limit 1
+-- Q1: Write query to return the email, first name, last name, & Genre of all Rock Music listeners. 
+-- Return your list ordered alphabetically by email starting with A
 
--- Q2: Which countries have the most Invoices?
+--method_1
+select distinct email, first_name, last_name from customer as c_
+join invoice as i_ on c_.customer_id = i_.customer_id
+join invoice_line as i_l on i_.invoice_id = i_l.invoice_id
+where track_id in(
+	select track_id from track as t_
+	join genre as g_ on t_.genre_id = g_.genre_id where g_.name like 'Rock'
+)
+order by 1
 
-select billing_country, count(billing_country) total from invoice
-group by billing_country
-order by total desc
-limit 1
+--method_2
+select c_.customer_id, c_.email,c_.first_name, c_.last_name from customer as c_
+join invoice as i_ on c_.customer_id = i_.invoice_id
+join invoice_line as i_l on i_.invoice_id = i_l.invoice_id
+join track as t_ on i_l.track_id = t_.track_id
+join genre as g_ on t_.genre_id = g_.genre_id where g_.name like 'Rock'
+group by 1
+order by 2
 
--- Q3: What are top 3 values of total invoice?
+-- Q2: Let's invite the artists who have written the most rock music in our dataset.
+-- Write a query that returns the Artist name and total track count of the top 10 rock bands
 
-select total from invoice
-order by total desc
-limit 3
-
--- Q4: Which city has the best customers? We would like to throw a promotional 
--- Music Festival in the city we made the most money.
--- Write a query that returns one city that has the highest sum of invoice totals.
--- Return both the city name & sum of all invoice totals
-
-select billing_city, billing_country as city, sum(total) total from invoice
-group by 1,2 
-order by 3 desc
-limit 1
-
---Q5: Who is the best customer? The customer who has spent the most money
--- will be declared the best customer. 
--- Write a query that returns the person who has spent the most money
-
-select CONCAT(RTRIM(customer.first_name), ' ', LTRIM(customer.last_name)) full_name,
-sum(invoice.total) total from customer 
-join invoice on customer.customer_id = invoice.customer_id 
-group by customer.customer_id
+select a_.name, count(a_.name) as total from artist as a_
+join album as al_ on a_.artist_id = al_.artist_id
+join track as t_ on al_.album_id = t_.album_id
+where genre_id in(select genre_id from genre where name like 'Rock')
+group by 1
 order by 2 desc
-limit 1
+limit 10
 
+-- Q3: Return all the track names that have a song length longer than the average song length.
+-- Return the Name and Milliseconds for each track. Order by the song length with the longest 
+-- songs listed first
 
-
+select name, milliseconds from track
+where milliseconds > (select avg(milliseconds) as avg_track_time_ms from track)
+order by milliseconds desc
 
 
